@@ -9,6 +9,7 @@ import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
 import com.kotlindiscord.kord.extensions.modules.unsafe.commands.UnsafeSlashCommand
+import com.kotlindiscord.kord.extensions.modules.unsafe.types.InitialSlashCommandResponse
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.GuildBehavior
 import mu.KLogger
@@ -32,6 +33,8 @@ class HybridCommand<T : Arguments>(
          */
         var subCommandName: String? = null
 
+        var ackType: AckType = AckType.PUBLIC
+
         /**
          * Slash groups cannot have actions, this will be used for the subcommand's description.
          */
@@ -51,6 +54,14 @@ class HybridCommand<T : Arguments>(
         fun guild(guild: GuildBehavior) {
             this.guild = guild.id
         }
+
+        fun ackType(ackType: AckType) {
+            this.ackType = ackType
+        }
+    }
+
+    enum class AckType {
+        EPHEMERAL, PUBLIC
     }
 
     override val slashSettings: SlashSettings = SlashSettings(settings.applicationCommandsBuilder)
@@ -184,6 +195,10 @@ class HybridCommand<T : Arguments>(
         this.name = this@HybridCommand.name
         this.description = this@HybridCommand.description
         this.checkList += this@HybridCommand.checkList
+
+        this.initialResponse =
+            if (this@HybridCommand.slashSettings.ackType == AckType.EPHEMERAL) InitialSlashCommandResponse.EphemeralAck
+            else InitialSlashCommandResponse.PublicAck
         this.requiredPerms += this@HybridCommand.requiredPerms
 
         this@HybridCommand.slashSettings.guild?.let { this.guild(it) }
