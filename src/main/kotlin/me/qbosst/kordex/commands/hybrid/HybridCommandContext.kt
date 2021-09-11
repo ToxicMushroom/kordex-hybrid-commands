@@ -4,9 +4,10 @@ import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.commands.CommandContext
 import com.kotlindiscord.kord.extensions.commands.application.message.MessageCommandContext
-import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommandContext
 import com.kotlindiscord.kord.extensions.commands.chat.ChatCommandContext
 import com.kotlindiscord.kord.extensions.components.ComponentContainer
+import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
+import com.kotlindiscord.kord.extensions.modules.unsafe.contexts.UnsafeSlashCommandContext
 import com.kotlindiscord.kord.extensions.pagination.builders.PaginatorBuilder
 import com.kotlindiscord.kord.extensions.utils.getKoin
 import dev.kord.core.Kord
@@ -26,21 +27,23 @@ import me.qbosst.kordex.commands.hybrid.entity.PublicHybridMessage
 import me.qbosst.kordex.pagination.HybridButtonPaginator
 
 @JvmInline
+@OptIn(UnsafeAPI::class)
 value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
 
     val kord: Kord get() = context.eventObj.kord
     val eventObj: Event get() = context.eventObj
 
+
     val channel: MessageChannelBehavior
         get() = when (context) {
-            is PublicSlashCommandContext<*> -> context.channel
+            is UnsafeSlashCommandContext<*> -> context.channel
             is ChatCommandContext<*> -> context.channel
             else -> error("Unknown context type provided.")
         }
 
     suspend fun getGuild(): GuildBehavior? {
         return when (context) {
-            is PublicSlashCommandContext<*> -> context.getGuild()
+            is UnsafeSlashCommandContext<*> -> context.getGuild()
             is ChatCommandContext<*> -> context.getGuild()
             else -> error("Unknown context type provided.")
         }
@@ -48,21 +51,21 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
 
     val member: MemberBehavior?
         get() = when (context) {
-            is PublicSlashCommandContext<*> -> context.member
+            is UnsafeSlashCommandContext<*> -> context.member
             is ChatCommandContext<*> -> context.member
             else -> error("Unknown context type provided.")
         }
 
     val user: UserBehavior?
         get() = when (context) {
-            is PublicSlashCommandContext<*> -> context.user
+            is UnsafeSlashCommandContext<*> -> context.user
             is ChatCommandContext<*> -> context.user
             else -> error("Unknown context type provided")
         }
 
     val message: Message?
         get() = when (context) {
-            is PublicSlashCommandContext<*> -> null
+            is UnsafeSlashCommandContext<*> -> null
             is ChatCommandContext<*> -> context.message
             else -> error("Unknown context type provided.")
         }
@@ -70,13 +73,13 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
     @Suppress("UNCHECKED_CAST")
     val arguments: T
         get() = when (context) {
-            is PublicSlashCommandContext<*> -> context.arguments
+            is UnsafeSlashCommandContext<*> -> context.arguments
             is ChatCommandContext<*> -> context.arguments
             else -> error("Unknown context type provided.")
         } as T
 
     suspend fun getPrefix() = when (context) {
-        is PublicSlashCommandContext<*> -> "/"
+        is UnsafeSlashCommandContext<*> -> "/"
         is ChatCommandContext<*> -> with(getKoin().get<ExtensibleBot>().settings.chatCommandsBuilder) {
             prefixCallback.invoke(context.eventObj as MessageCreateEvent, defaultPrefix)
         }
@@ -92,7 +95,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
         val messageBuilder = EphemeralHybridMessageCreateBuilder().apply(builder)
 
         val (response, interaction) = when (context) {
-            is PublicSlashCommandContext<*> -> {
+            is UnsafeSlashCommandContext<*> -> {
                 val interaction = context.interactionResponse
 
                 kord.rest.interaction.createFollowupMessage(
@@ -125,7 +128,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
         val messageBuilder = PublicHybridMessageCreateBuilder().apply(builder)
 
         val (response, interaction) = when (context) {
-            is PublicSlashCommandContext<*> -> {
+            is UnsafeSlashCommandContext<*> -> {
                 val interaction = context.interactionResponse
 
                 kord.rest.interaction.createFollowupMessage(
