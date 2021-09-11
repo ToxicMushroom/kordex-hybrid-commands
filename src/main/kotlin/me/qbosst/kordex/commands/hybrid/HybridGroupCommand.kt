@@ -3,10 +3,11 @@ package me.qbosst.kordex.commands.hybrid
 import com.kotlindiscord.kord.extensions.CommandRegistrationException
 import com.kotlindiscord.kord.extensions.InvalidCommandException
 import com.kotlindiscord.kord.extensions.commands.Arguments
-import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommand
 import com.kotlindiscord.kord.extensions.commands.application.slash.SlashGroup
 import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
+import com.kotlindiscord.kord.extensions.modules.unsafe.commands.UnsafeSlashCommand
 import mu.KLogger
 import mu.KotlinLogging
 
@@ -103,7 +104,8 @@ class HybridGroupCommand<T: Arguments>(
         }
     }
 
-    fun toSlashGroup(parent: PublicSlashCommand<out Arguments>): SlashGroup = SlashGroup(name, parent).apply {
+    @OptIn(UnsafeAPI::class)
+    fun toSlashGroup(parent: UnsafeSlashCommand<out Arguments>): SlashGroup = SlashGroup(name, parent).apply {
         this.description = this@HybridGroupCommand.description
 
         this.subCommands.addAll(
@@ -117,9 +119,10 @@ class HybridGroupCommand<T: Arguments>(
         }
     }
 
+    @OptIn(UnsafeAPI::class)
     private fun toSlashCommand(
         parent: SlashGroup
-    ): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments, parentGroup = parent).apply {
+    ): UnsafeSlashCommand<T> = UnsafeSlashCommand(extension, arguments, parentGroup = parent).apply {
         this.name = this@HybridGroupCommand.slashSettings.subCommandName!!
         this.description = this@HybridGroupCommand.slashSettings.subCommandDescription
             ?: this@HybridGroupCommand.description

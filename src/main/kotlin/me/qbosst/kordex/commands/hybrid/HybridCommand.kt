@@ -4,10 +4,11 @@ import com.kotlindiscord.kord.extensions.CommandRegistrationException
 import com.kotlindiscord.kord.extensions.InvalidCommandException
 import com.kotlindiscord.kord.extensions.builders.ExtensibleBotBuilder
 import com.kotlindiscord.kord.extensions.commands.Arguments
-import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommand
 import com.kotlindiscord.kord.extensions.commands.chat.ChatCommand
 import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
+import com.kotlindiscord.kord.extensions.modules.unsafe.commands.UnsafeSlashCommand
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.GuildBehavior
 import mu.KLogger
@@ -178,7 +179,8 @@ class HybridCommand<T : Arguments>(
         }
     }
 
-    fun toSlashCommand(): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments).apply {
+    @OptIn(UnsafeAPI::class)
+    fun toSlashCommand(): UnsafeSlashCommand<T> = UnsafeSlashCommand(extension, arguments).apply {
         this.name = this@HybridCommand.name
         this.description = this@HybridCommand.description
         this.checkList += this@HybridCommand.checkList
@@ -207,9 +209,10 @@ class HybridCommand<T : Arguments>(
         }
     }
 
+    @OptIn(UnsafeAPI::class)
     private fun toSlashSubCommand(
-        parent: PublicSlashCommand<out Arguments>
-    ): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments, parentCommand = parent).apply {
+        parent: UnsafeSlashCommand<out Arguments>
+    ): UnsafeSlashCommand<T> = UnsafeSlashCommand(extension, arguments, parentCommand = parent).apply {
         this.name = this@HybridCommand.slashSettings.subCommandName!!
         this.description = this@HybridCommand.slashSettings.subCommandDescription ?: this@HybridCommand.description
         this.checkList += this@HybridCommand.checkList

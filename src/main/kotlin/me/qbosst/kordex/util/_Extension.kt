@@ -7,7 +7,8 @@ import com.kotlindiscord.kord.extensions.checks.types.Check
 import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.extensions.chatCommand
-import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
+import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
+import com.kotlindiscord.kord.extensions.modules.unsafe.extensions.unsafeSlashCommand
 import dev.kord.core.event.Event
 import me.qbosst.kordex.commands.hybrid.HybridCommand
 import mu.KotlinLogging
@@ -25,6 +26,7 @@ suspend fun <T: Arguments> Extension.hybridCommand(
     return hybridCommand(hybridCommandObj)
 }
 
+@OptIn(UnsafeAPI::class)
 suspend fun <T: Arguments> Extension.hybridCommand(commandObj: HybridCommand<T>): HybridCommand<T> {
     try {
         commandObj.validate()
@@ -35,7 +37,7 @@ suspend fun <T: Arguments> Extension.hybridCommand(commandObj: HybridCommand<T>)
 
         // create a slash command
         val slashCommandObj = commandObj.toSlashCommand()
-        publicSlashCommand(slashCommandObj)
+        unsafeSlashCommand(slashCommandObj)
 
     } catch (e: CommandRegistrationException) {
         logger.error(e) { "Failed to register command - $e" }
