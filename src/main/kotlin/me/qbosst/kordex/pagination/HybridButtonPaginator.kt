@@ -1,7 +1,6 @@
 package me.qbosst.kordex.pagination
 
-import com.kotlindiscord.kord.extensions.components.Components
-import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.components.ComponentContainer
 import com.kotlindiscord.kord.extensions.pagination.BaseButtonPaginator
 import com.kotlindiscord.kord.extensions.pagination.EXPAND_EMOJI
 import com.kotlindiscord.kord.extensions.pagination.SWITCH_EMOJI
@@ -9,7 +8,6 @@ import com.kotlindiscord.kord.extensions.pagination.builders.PaginatorBuilder
 import com.kotlindiscord.kord.extensions.pagination.pages.Pages
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.User
-import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.create.allowedMentions
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.rest.builder.message.modify.allowedMentions
@@ -20,7 +18,6 @@ import me.qbosst.kordex.commands.hybrid.entity.PublicHybridMessage
 import java.util.*
 
 class HybridButtonPaginator(
-    extension: Extension,
     pages: Pages,
     owner: User? = null,
     timeoutSeconds: Long? = null,
@@ -29,14 +26,13 @@ class HybridButtonPaginator(
     bundle: String? = null,
     locale: Locale? = null,
     val parentContext: HybridCommandContext<*>,
-): BaseButtonPaginator(extension, pages, owner, timeoutSeconds, keepEmbed, switchEmoji, bundle, locale) {
-    override var components: Components = Components(extension)
+) : BaseButtonPaginator(pages, owner, timeoutSeconds, keepEmbed, switchEmoji, bundle, locale) {
+    override var components: ComponentContainer = ComponentContainer()
     var interaction: PublicHybridMessage? = null
 
     override suspend fun send() {
-        components.stop()
-
-        if(interaction == null) {
+        components.removeAll()
+        if (interaction == null) {
             setup()
 
             interaction = parentContext.publicFollowUp {
@@ -44,7 +40,7 @@ class HybridButtonPaginator(
                 embed { applyPage() }
 
                 with(parentContext) {
-                    this@publicFollowUp.setup(this@HybridButtonPaginator.components, timeoutSeconds)
+                    this@publicFollowUp.setup(this@HybridButtonPaginator.components) //, timeoutSeconds)
                 }
             }
         } else {
@@ -54,21 +50,21 @@ class HybridButtonPaginator(
                 embed { applyPage() }
 
                 with(parentContext) {
-                    this@edit.setup(this@HybridButtonPaginator.components, timeoutSeconds)
+                    this@edit.setup(this@HybridButtonPaginator.components) //, timeoutSeconds)
                 }
             }
         }
     }
 
     override suspend fun destroy() {
-        if(!active) {
+        if (!active) {
             return
         }
 
         active = false
-        components.stop()
+        components.removeAll()
 
-        if(!keepEmbed) {
+        if (!keepEmbed) {
             interaction!!.delete()
         } else {
             interaction!!.edit {
@@ -88,7 +84,6 @@ fun HybridButtonPaginator(
     builder: PaginatorBuilder,
     parentContext: HybridCommandContext<*>,
 ): HybridButtonPaginator = HybridButtonPaginator(
-    extension = builder.extension,
     pages = builder.pages,
     owner = builder.owner,
     timeoutSeconds = builder.timeoutSeconds,

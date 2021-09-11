@@ -3,10 +3,10 @@ package me.qbosst.kordex.commands.hybrid
 import com.kotlindiscord.kord.extensions.CommandRegistrationException
 import com.kotlindiscord.kord.extensions.InvalidCommandException
 import com.kotlindiscord.kord.extensions.builders.ExtensibleBotBuilder
-import com.kotlindiscord.kord.extensions.commands.GroupCommand
-import com.kotlindiscord.kord.extensions.commands.MessageCommand
-import com.kotlindiscord.kord.extensions.commands.parser.Arguments
-import com.kotlindiscord.kord.extensions.commands.slash.SlashCommand
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommand
+import com.kotlindiscord.kord.extensions.commands.chat.ChatCommand
+import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.GuildBehavior
@@ -16,11 +16,12 @@ import mu.KotlinLogging
 private val logger: KLogger = KotlinLogging.logger {}
 private const val DISCORD_LIMIT: Int = 25
 
-class HybridCommand<T: Arguments>(
+class HybridCommand<T : Arguments>(
     extension: Extension,
     arguments: (() -> T)? = null
-): BasicHybridCommand<T>(extension, arguments) {
-    class SlashSettings(settings: ExtensibleBotBuilder.SlashCommandsBuilder): BasicHybridCommand.SlashSettings() {
+) : BasicHybridCommand<T>(extension, arguments) {
+    class SlashSettings(settings: ExtensibleBotBuilder.ApplicationCommandsBuilder) :
+        BasicHybridCommand.SlashSettings() {
         /** Guild ID this slash command is to be registered for, if any. **/
         var guild: Snowflake? = settings.defaultGuild
 
@@ -51,7 +52,7 @@ class HybridCommand<T: Arguments>(
         }
     }
 
-    override val slashSettings: SlashSettings = SlashSettings(settings.slashCommandsBuilder)
+    override val slashSettings: SlashSettings = SlashSettings(settings.applicationCommandsBuilder)
 
     val groups: MutableMap<String, HybridGroupCommand<out Arguments>> = mutableMapOf()
     val commands: MutableList<HybridSubCommand<out Arguments>> = mutableListOf()
@@ -67,12 +68,12 @@ class HybridCommand<T: Arguments>(
     override fun validate() {
         super.validate()
 
-        if(!hasBody && groups.isEmpty() && commands.isEmpty()) {
+        if (!hasBody && groups.isEmpty() && commands.isEmpty()) {
             throw InvalidCommandException(name, "No command action or subcommands/groups given.")
         }
     }
 
-    suspend fun <R: Arguments> subCommand(
+    suspend fun <R : Arguments> subCommand(
         arguments: (() -> R)?,
         body: suspend HybridSubCommand<R>.() -> Unit
     ): HybridSubCommand<R> {
@@ -81,12 +82,12 @@ class HybridCommand<T: Arguments>(
         return subCommand(commandObj)
     }
 
-    fun <R: Arguments> subCommand(commandObj: HybridSubCommand<R>): HybridSubCommand<R> {
-        if(groups.isNotEmpty()) {
+    fun <R : Arguments> subCommand(commandObj: HybridSubCommand<R>): HybridSubCommand<R> {
+        if (groups.isNotEmpty()) {
             error("Commands may only contain subcommands or command groups, not both.")
         }
 
-        if(commands.size >= DISCORD_LIMIT) {
+        if (commands.size >= DISCORD_LIMIT) {
             error("Commands may only contain up to $DISCORD_LIMIT top-level subcommands.")
         }
 
@@ -106,7 +107,7 @@ class HybridCommand<T: Arguments>(
         body: suspend HybridSubCommand<Arguments>.() -> Unit
     ): HybridSubCommand<Arguments> = subCommand(null, body)
 
-    suspend fun <R: Arguments> group(
+    suspend fun <R : Arguments> group(
         arguments: (() -> R)?,
         body: suspend HybridGroupCommand<R>.() -> Unit
     ): HybridGroupCommand<R> {
@@ -115,16 +116,16 @@ class HybridCommand<T: Arguments>(
         return group(commandObj)
     }
 
-    fun <R: Arguments> group(commandObj: HybridGroupCommand<R>): HybridGroupCommand<R> {
-        if(commands.isNotEmpty()) {
+    fun <R : Arguments> group(commandObj: HybridGroupCommand<R>): HybridGroupCommand<R> {
+        if (commands.isNotEmpty()) {
             error("Commands may only contain subcommands or command groups, not both.")
         }
 
-        if(groups.size >= DISCORD_LIMIT) {
+        if (groups.size >= DISCORD_LIMIT) {
             error("Commands may only contain up to $DISCORD_LIMIT command groups.")
         }
 
-        if(groups[commandObj.name] != null) {
+        if (groups[commandObj.name] != null) {
             error("A command group with the name '${commandObj.name}' has already been registered.")
         }
 
@@ -144,9 +145,9 @@ class HybridCommand<T: Arguments>(
         body: suspend HybridGroupCommand<Arguments>.() -> Unit
     ): HybridGroupCommand<Arguments> = group(null, body)
 
-    fun toMessageCommand(): MessageCommand<T> {
-        val commandObj = if(commands.isNotEmpty() || groups.isNotEmpty()) {
-            GroupCommand(extension, arguments).apply {
+    fun toChatCommand(): ChatCommand<T> {
+        val commandObj = if (commands.isNotEmpty() || groups.isNotEmpty()) {
+            ChatGroupCommand(extension, arguments).apply {
                 this.commands.addAll(
                     this@HybridCommand.commands.map { it.toMessageCommand(parent = this) }
                 )
@@ -156,7 +157,7 @@ class HybridCommand<T: Arguments>(
                 )
             }
         } else {
-            MessageCommand(extension, arguments)
+            ChatCommand(extension, arguments)
         }
 
         return commandObj.apply {
@@ -169,7 +170,7 @@ class HybridCommand<T: Arguments>(
             this.hidden = this@HybridCommand.messageSettings.hidden
             this.aliases = this@HybridCommand.messageSettings.aliases
 
-            if(hasBody) {
+            if (hasBody) {
                 action { this@HybridCommand.body.invoke(HybridCommandContext(this)) }
             } else {
                 action { sendHelp() }
@@ -177,14 +178,13 @@ class HybridCommand<T: Arguments>(
         }
     }
 
-    fun toSlashCommand(): SlashCommand<T> = SlashCommand(extension, arguments).apply {
+    fun toSlashCommand(): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments).apply {
         this.name = this@HybridCommand.name
         this.description = this@HybridCommand.description
         this.checkList += this@HybridCommand.checkList
         this.requiredPerms += this@HybridCommand.requiredPerms
 
-        this.autoAck = this@HybridCommand.slashSettings.autoAck
-        this.guild = this@HybridCommand.slashSettings.guild
+        this@HybridCommand.slashSettings.guild?.let { this.guild(it) }
 
         when {
             this@HybridCommand.groups.isNotEmpty() -> this.groups.putAll(
@@ -202,20 +202,18 @@ class HybridCommand<T: Arguments>(
             else -> action { this@HybridCommand.body.invoke(HybridCommandContext(this)) }
         }
 
-        if(this@HybridCommand.slashSettings.subCommandName != null && this@HybridCommand.hasBody) {
+        if (this@HybridCommand.slashSettings.subCommandName != null && this@HybridCommand.hasBody) {
             this.subCommands.add(toSlashSubCommand(this))
         }
     }
 
     private fun toSlashSubCommand(
-        parent: SlashCommand<out Arguments>
-    ): SlashCommand<T> = SlashCommand(extension, arguments, parentCommand = parent).apply {
+        parent: PublicSlashCommand<out Arguments>
+    ): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments, parentCommand = parent).apply {
         this.name = this@HybridCommand.slashSettings.subCommandName!!
         this.description = this@HybridCommand.slashSettings.subCommandDescription ?: this@HybridCommand.description
         this.checkList += this@HybridCommand.checkList
         this.requiredPerms += this@HybridCommand.requiredPerms
-
-        this.autoAck = this@HybridCommand.slashSettings.autoAck
 
         action { this@HybridCommand.body.invoke(HybridCommandContext(this)) }
     }

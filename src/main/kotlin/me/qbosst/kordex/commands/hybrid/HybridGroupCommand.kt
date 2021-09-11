@@ -2,10 +2,10 @@ package me.qbosst.kordex.commands.hybrid
 
 import com.kotlindiscord.kord.extensions.CommandRegistrationException
 import com.kotlindiscord.kord.extensions.InvalidCommandException
-import com.kotlindiscord.kord.extensions.commands.GroupCommand
-import com.kotlindiscord.kord.extensions.commands.parser.Arguments
-import com.kotlindiscord.kord.extensions.commands.slash.SlashCommand
-import com.kotlindiscord.kord.extensions.commands.slash.SlashGroup
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommand
+import com.kotlindiscord.kord.extensions.commands.application.slash.SlashGroup
+import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import mu.KLogger
 import mu.KotlinLogging
@@ -81,8 +81,8 @@ class HybridGroupCommand<T: Arguments>(
     ): HybridSubCommand<Arguments> = subCommand(null, body)
 
     fun toMessageCommand(
-        parent: GroupCommand<out Arguments>
-    ): GroupCommand<T> = GroupCommand(extension, arguments, parent).apply {
+        parent: ChatGroupCommand<out Arguments>
+    ): ChatGroupCommand<T> = ChatGroupCommand(extension, arguments, parent).apply {
         this.name = this@HybridGroupCommand.name
         this.description = this@HybridGroupCommand.description
         this.checkList += this@HybridGroupCommand.checkList
@@ -103,7 +103,7 @@ class HybridGroupCommand<T: Arguments>(
         }
     }
 
-    fun toSlashGroup(parent: SlashCommand<out Arguments>): SlashGroup = SlashGroup(name, parent).apply {
+    fun toSlashGroup(parent: PublicSlashCommand<out Arguments>): SlashGroup = SlashGroup(name, parent).apply {
         this.description = this@HybridGroupCommand.description
 
         this.subCommands.addAll(
@@ -119,14 +119,13 @@ class HybridGroupCommand<T: Arguments>(
 
     private fun toSlashCommand(
         parent: SlashGroup
-    ): SlashCommand<T> = SlashCommand(extension, arguments, parentGroup = parent).apply {
+    ): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments, parentGroup = parent).apply {
         this.name = this@HybridGroupCommand.slashSettings.subCommandName!!
         this.description = this@HybridGroupCommand.slashSettings.subCommandDescription
             ?: this@HybridGroupCommand.description
         this.checkList += this@HybridGroupCommand.checkList
         this.requiredPerms += this@HybridGroupCommand.requiredPerms
 
-        this.autoAck = this@HybridGroupCommand.slashSettings.autoAck
 
         action { this@HybridGroupCommand.body.invoke(HybridCommandContext(this)) }
     }

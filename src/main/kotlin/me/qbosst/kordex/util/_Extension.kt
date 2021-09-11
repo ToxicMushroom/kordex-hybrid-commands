@@ -4,8 +4,10 @@ import com.kotlindiscord.kord.extensions.CommandRegistrationException
 import com.kotlindiscord.kord.extensions.InvalidCommandException
 import com.kotlindiscord.kord.extensions.annotations.ExtensionDSL
 import com.kotlindiscord.kord.extensions.checks.types.Check
-import com.kotlindiscord.kord.extensions.commands.parser.Arguments
+import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.extensions.chatCommand
+import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
 import dev.kord.core.event.Event
 import me.qbosst.kordex.commands.hybrid.HybridCommand
 import mu.KotlinLogging
@@ -28,12 +30,12 @@ suspend fun <T: Arguments> Extension.hybridCommand(commandObj: HybridCommand<T>)
         commandObj.validate()
 
         // create a message command
-        val messageCommandObj = commandObj.toMessageCommand()
-        command(messageCommandObj)
+        val messageCommandObj = commandObj.toChatCommand()
+        chatCommand(messageCommandObj)
 
         // create a slash command
         val slashCommandObj = commandObj.toSlashCommand()
-        slashCommand(slashCommandObj)
+        publicSlashCommand(slashCommandObj)
 
     } catch (e: CommandRegistrationException) {
         logger.error(e) { "Failed to register command - $e" }
@@ -51,12 +53,12 @@ suspend fun Extension.hybridCommand(
 
 @ExtensionDSL
 fun Extension.hybridCheck(body: Check<Event>) {
-    commandChecks.add(body)
+    chatCommandChecks.add(body)
     slashCommandChecks.add(body)
 }
 
 @ExtensionDSL
 fun Extension.hybridCheck(vararg checks: Check<Event>) {
-    commandChecks.addAll(checks)
+    chatCommandChecks.addAll(checks)
     slashCommandChecks.addAll(checks)
 }

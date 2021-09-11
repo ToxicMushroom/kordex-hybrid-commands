@@ -1,18 +1,18 @@
 plugins {
-    kotlin("jvm") version "1.5.10"
+    kotlin("jvm") version "1.5.30"
     `maven-publish`
     signing
 }
 
 project.group = "io.github.qbosst"
-project.version = "1.0.2-SNAPSHOT"
+project.version = "1.0.3-SNAPSHOT"
 val projectArtifactId = "kordex-hybrid-commands"
 val projectGithubUrl = "https://github.com/qbosst/$projectArtifactId"
 
 val releaseRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val kordexVersion = "1.4.4-SNAPSHOT"
+val kordexVersion = "1.5.0-20210911.140522-40"
 
 repositories {
     mavenCentral()
@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     compileOnly("com.kotlindiscord.kord.extensions:kord-extensions:$kordexVersion")
-    implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
     testImplementation("com.kotlindiscord.kord.extensions:kord-extensions:$kordexVersion")
 }
 

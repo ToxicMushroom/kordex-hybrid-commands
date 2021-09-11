@@ -3,14 +3,12 @@ package me.qbosst.kordex.commands.hybrid
 import com.kotlindiscord.kord.extensions.InvalidCommandException
 import com.kotlindiscord.kord.extensions.builders.ExtensibleBotBuilder
 import com.kotlindiscord.kord.extensions.checks.types.Check
-import com.kotlindiscord.kord.extensions.commands.parser.Arguments
-import com.kotlindiscord.kord.extensions.commands.slash.AutoAckType
+import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.sentry.SentryAdapter
 import dev.kord.common.entity.Permission
 import dev.kord.core.Kord
 import dev.kord.core.event.Event
-import dev.kord.core.event.message.MessageCreateEvent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -19,8 +17,6 @@ open class BasicHybridCommand<T: Arguments>(
     open val arguments: (() -> T)? = null
 ): KoinComponent {
     open class SlashSettings {
-        /** Types of automatic ack to use, if any. **/
-        open var autoAck: AutoAckType = AutoAckType.NONE
 
         /**
          * Whether this command is enabled and can be invoked.

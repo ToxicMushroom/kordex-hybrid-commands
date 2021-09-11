@@ -1,11 +1,11 @@
 package me.qbosst.kordex.commands.hybrid
 
 import com.kotlindiscord.kord.extensions.InvalidCommandException
-import com.kotlindiscord.kord.extensions.commands.GroupCommand
-import com.kotlindiscord.kord.extensions.commands.MessageSubCommand
-import com.kotlindiscord.kord.extensions.commands.parser.Arguments
-import com.kotlindiscord.kord.extensions.commands.slash.SlashCommand
-import com.kotlindiscord.kord.extensions.commands.slash.SlashGroup
+import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.application.slash.PublicSlashCommand
+import com.kotlindiscord.kord.extensions.commands.application.slash.SlashGroup
+import com.kotlindiscord.kord.extensions.commands.chat.ChatGroupCommand
+import com.kotlindiscord.kord.extensions.commands.chat.ChatSubCommand
 import com.kotlindiscord.kord.extensions.extensions.Extension
 
 class HybridSubCommand<T: Arguments>(
@@ -31,8 +31,8 @@ class HybridSubCommand<T: Arguments>(
     }
 
     fun toMessageCommand(
-        parent: GroupCommand<out Arguments>
-    ): MessageSubCommand<T> = MessageSubCommand(extension, arguments, parent).apply {
+        parent: ChatGroupCommand<out Arguments>
+    ): ChatSubCommand<T> = ChatSubCommand(extension, arguments, parent).apply {
         this.name = this@HybridSubCommand.name
         this.description = this@HybridSubCommand.description
         this.checkList += this@HybridSubCommand.checkList
@@ -46,15 +46,13 @@ class HybridSubCommand<T: Arguments>(
     }
 
     fun toSlashCommand(
-        parent: SlashCommand<out Arguments>? = null,
+        parent: PublicSlashCommand<out Arguments>? = null,
         group: SlashGroup? = null
-    ): SlashCommand<T> = SlashCommand(extension, arguments, parent, group).apply {
+    ): PublicSlashCommand<T> = PublicSlashCommand(extension, arguments, parent, group).apply {
         this.name = this@HybridSubCommand.name
         this.description = this@HybridSubCommand.description
         this.checkList += this@HybridSubCommand.checkList
         this.requiredPerms += this@HybridSubCommand.requiredPerms
-
-        this.autoAck = this@HybridSubCommand.slashSettings.autoAck
 
         action { this@HybridSubCommand.body.invoke(HybridCommandContext(this)) }
     }
