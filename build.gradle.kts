@@ -14,6 +14,11 @@ val snapshotRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapsho
 
 val kordexVersion = "1.5.0-20210911.140522-40"
 
+configure<JavaPluginExtension> {
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
 repositories {
     mavenCentral()
 
