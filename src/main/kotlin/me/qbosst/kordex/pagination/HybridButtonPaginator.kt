@@ -16,6 +16,8 @@ import me.qbosst.kordex.commands.hybrid.HybridCommandContext
 import me.qbosst.kordex.commands.hybrid.behaviour.edit
 import me.qbosst.kordex.commands.hybrid.entity.PublicHybridMessage
 import java.util.*
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 class HybridButtonPaginator(
     pages: Pages,
@@ -27,12 +29,14 @@ class HybridButtonPaginator(
     locale: Locale? = null,
     val parentContext: HybridCommandContext<*>,
 ) : BaseButtonPaginator(pages, owner, timeoutSeconds, keepEmbed, switchEmoji, bundle, locale) {
-    override var components: ComponentContainer = ComponentContainer()
+    @OptIn(ExperimentalTime::class)
+    override var components: ComponentContainer = ComponentContainer(timeoutSeconds?.let { Duration.seconds(it) })
     var interaction: PublicHybridMessage? = null
 
     override suspend fun send() {
         components.removeAll()
-        if (interaction == null) {
+        val scopedInteraction = interaction
+        if (scopedInteraction == null) {
             setup()
 
             interaction = parentContext.publicFollowUp {
@@ -40,17 +44,17 @@ class HybridButtonPaginator(
                 embed { applyPage() }
 
                 with(parentContext) {
-                    this@publicFollowUp.setup(this@HybridButtonPaginator.components) //, timeoutSeconds)
+                    this@publicFollowUp.setup(this@HybridButtonPaginator.components)
                 }
             }
         } else {
             updateButtons()
 
-            interaction!!.edit {
+            scopedInteraction.edit {
                 embed { applyPage() }
 
                 with(parentContext) {
-                    this@edit.setup(this@HybridButtonPaginator.components) //, timeoutSeconds)
+                    this@edit.setup(this@HybridButtonPaginator.components)
                 }
             }
         }

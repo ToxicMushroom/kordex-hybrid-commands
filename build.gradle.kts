@@ -12,7 +12,7 @@ val projectGithubUrl = "https://github.com/qbosst/$projectArtifactId"
 val releaseRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val kordexVersion = "1.5.0-20210911.163923-42"
+val kordexVersion = "1.5.0-20210913.123035-52"
 
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_1_9

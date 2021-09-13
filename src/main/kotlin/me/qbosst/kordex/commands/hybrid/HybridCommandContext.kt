@@ -161,16 +161,12 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
      * @see Components
      */
     suspend fun PublicHybridMessageCreateBuilder.components(
-        timeoutSeconds: Long? = null,
         body: suspend ComponentContainer.() -> Unit
     ): ComponentContainer {
         val components = ComponentContainer()
 
         body(components)
-        setup(
-            components
-            /**, timeoutSeconds **/
-        )
+        setup(components)
 
         return components
     }
@@ -181,31 +177,21 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
      * @see Components
      */
     suspend fun HybridMessageModifyBuilder.components(
-//        timeoutSeconds: Long? = null,
         body: suspend ComponentContainer.() -> Unit
     ): ComponentContainer {
         val components = ComponentContainer()
 
         body(components)
-        setup(
-            components
-            /** , timeoutSeconds **/
-        )
+        setup(components)
 
         return components
     }
 
-    suspend fun PublicHybridMessageCreateBuilder.setup(
-        component: ComponentContainer
-//        , timeoutSeconds: Long? = null
-    ) = with(component) {
+    fun PublicHybridMessageCreateBuilder.setup(component: ComponentContainer) = with(component) {
         applyToMessage()
     }
 
-    suspend fun HybridMessageModifyBuilder.setup(
-        component: ComponentContainer,
-//        timeoutSeconds: Long? = null
-    ) = with(component) {
+    fun HybridMessageModifyBuilder.setup(component: ComponentContainer, ) = with(component) {
         applyToMessage()
     }
 
