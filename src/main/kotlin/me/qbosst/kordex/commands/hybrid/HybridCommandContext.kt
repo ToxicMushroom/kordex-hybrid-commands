@@ -3,7 +3,6 @@ package me.qbosst.kordex.commands.hybrid
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.commands.CommandContext
-import com.kotlindiscord.kord.extensions.commands.application.message.MessageCommandContext
 import com.kotlindiscord.kord.extensions.commands.chat.ChatCommandContext
 import com.kotlindiscord.kord.extensions.components.ComponentContainer
 import com.kotlindiscord.kord.extensions.modules.unsafe.annotations.UnsafeAPI
@@ -87,7 +86,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
     }
 
     /**
-     * Note: This will not be ephemeral if [context] is from a [MessageCommandContext]
+     * Note: This will not be ephemeral if [context] is from a [ChatCommandContext]
      */
     suspend inline fun ephemeralFollowUp(
         builder: EphemeralHybridMessageCreateBuilder.() -> Unit
@@ -105,7 +104,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
                 ) to interaction
             }
 
-            is MessageCommandContext<*> -> {
+            is ChatCommandContext<*> -> {
                 val messageId = message?.id
 
                 kord.rest.channel.createMessage(
@@ -138,7 +137,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
                 ) to interaction
             }
 
-            is MessageCommandContext<*> -> {
+            is ChatCommandContext<*> -> {
                 val messageId = message?.id
 
                 kord.rest.channel.createMessage(
