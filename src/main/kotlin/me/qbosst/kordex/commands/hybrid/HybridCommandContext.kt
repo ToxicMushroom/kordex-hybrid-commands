@@ -95,7 +95,8 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
 
         val (response, interaction) = when (context) {
             is UnsafeSlashCommandContext<*> -> {
-                val interaction = context.interactionResponse
+
+                val interaction = context.interactionResponse ?: context.event.interaction.acknowledgeEphemeral()
 
                 kord.rest.interaction.createFollowupMessage(
                     interaction.applicationId,
@@ -128,7 +129,7 @@ value class HybridCommandContext<T : Arguments>(val context: CommandContext) {
 
         val (response, interaction) = when (context) {
             is UnsafeSlashCommandContext<*> -> {
-                val interaction = context.interactionResponse
+                val interaction = context.interactionResponse ?: context.event.interaction.acknowledgePublic()
 
                 kord.rest.interaction.createFollowupMessage(
                     interaction.applicationId,

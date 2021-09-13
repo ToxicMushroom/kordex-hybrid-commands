@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     compileOnly("com.kotlindiscord.kord.extensions:kord-extensions:$kordexVersion")
-    compileOnly("com.kotlindiscord.kord.extensions:unsafe:1.5.0-20210911.163923-15")
+    compileOnly("com.kotlindiscord.kord.extensions:unsafe:1.5.0-20210913.123035-25")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
     testImplementation("com.kotlindiscord.kord.extensions:kord-extensions:$kordexVersion")
 }
