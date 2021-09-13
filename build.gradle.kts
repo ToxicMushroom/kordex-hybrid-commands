@@ -12,8 +12,8 @@ val projectGithubUrl = "https://github.com/qbosst/$projectArtifactId"
 val releaseRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 val snapshotRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-val kordexVersion = "1.5.0-20210913.180109-53" // https://maven.kotlindiscord.com/#browse/browse:maven-public:com%2Fkotlindiscord%2Fkord%2Fextensions%2Fkord-extensions%2F1.5.0-SNAPSHOT%2F1.5.0-20210913.180109-53
-val unsafeKordex = "1.5.0-20210913.180109-26" // https://maven.kotlindiscord.com/#browse/browse:maven-public:com%2Fkotlindiscord%2Fkord%2Fextensions%2Funsafe%2F1.5.0-SNAPSHOT%2F1.5.0-20210913.180109-26
+val kordexVersion = "1.5.0-20210913.180109-53" // https://maven.kotlindiscord.com/#browse/browse:maven-public:com%2Fkotlindiscord%2Fkord%2Fextensions%2Fkord-extensions%2F1.5.0-SNAPSHOT
+val unsafeKordex = "1.5.0-20210913.180109-26" // https://maven.kotlindiscord.com/#browse/browse:maven-snapshots:com%2Fkotlindiscord%2Fkord%2Fextensions%2Funsafe%2F1.5.0-SNAPSHOT
 
 configure<JavaPluginExtension> {
     sourceCompatibility = JavaVersion.VERSION_1_9

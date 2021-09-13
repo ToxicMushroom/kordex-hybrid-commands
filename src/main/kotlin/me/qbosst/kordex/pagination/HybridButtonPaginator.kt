@@ -34,7 +34,6 @@ class HybridButtonPaginator(
     var interaction: PublicHybridMessage? = null
 
     override suspend fun send() {
-        components.removeAll()
         val scopedInteraction = interaction
         if (scopedInteraction == null) {
             setup()
@@ -95,6 +94,5 @@ fun HybridButtonPaginator(
     bundle = builder.bundle,
     locale = builder.locale,
     parentContext = parentContext,
-
     switchEmoji = builder.switchEmoji ?: if (builder.pages.groups.size == 2) EXPAND_EMOJI else SWITCH_EMOJI,
 )
